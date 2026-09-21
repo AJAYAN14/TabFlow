@@ -40,6 +40,15 @@
 
     <h6 class="text-muted text-uppercase small fw-bold mb-2 px-1">设置</h6>
     <form id="options-form" class="shadow-sm">
+        <div class="form-check form-switch py-1 border-bottom mb-2 pb-2">
+            <input class="form-check-input" type="checkbox" role="switch" id="enableCourseEnhancer" checked>
+            <label class="form-check-label fw-bold text-success-emphasis" for="enableCourseEnhancer">
+                <i class="fa-solid fa-graduation-cap text-success me-1"></i> 视频学习进度增强
+                <span data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="自动识别网课进度（进度大于95%自动标记为绿色已看完），提供一键定位与期数展开悬浮面板。">
+                    <i class="fa-solid fa-circle-info ms-1 text-muted"></i>
+                </span>
+            </label>
+        </div>
         <div class="form-check form-switch">
             <input class="form-check-input" type="checkbox" role="switch" id="openBackground">
             <label class="form-check-label" for="openBackground" aria-describedby="openBackgroundHelp">

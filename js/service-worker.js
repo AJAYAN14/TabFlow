@@ -35,6 +35,7 @@ async function onInstalled(details) {
     // Ensure no uninstall URL is set
     chrome.runtime.setUninstallURL('')
     const options = await setDefaultOptions({
+        enableCourseEnhancer: true,
         openBackground: false,
         onScroll: false,
         onAttributes: false,

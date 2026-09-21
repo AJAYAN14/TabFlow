@@ -85,25 +85,47 @@
 
     /**
      * Detect whether the current page is a course platform page.
-     * Checks for course list elements (.schedule-name, .live-item, or percentage text)
+     * Checks for domain, course list elements (.schedule-name, .live-item, or percentage text)
      */
     function detectCoursePage() {
+        if (location.hostname.includes('xinqingchen') || location.pathname.includes('courseDetail')) {
+            return true
+        }
         var hasSchedule = document.querySelector('.schedule-name') !== null
         var hasLiveItem = document.querySelector('.live-item') !== null
         var hasHeader = document.querySelector('.live-header') !== null
-        return (hasSchedule && hasLiveItem) || (hasLiveItem && hasHeader) || (hasSchedule && hasHeader)
+        var hasRight = document.querySelector('.right') !== null
+        return (hasSchedule && hasLiveItem) || (hasLiveItem && hasHeader) || (hasSchedule && hasHeader) || (hasRight && hasLiveItem)
     }
 
     // ─── Scan & Render ───────────────────────────────────────
 
     /**
-     * Walk every div.right, parse the percentage, inject visual badges
+     * Find elements containing progress percentage.
+     */
+    function findProgressElements() {
+        var rights = Array.from(document.querySelectorAll('.right'))
+        if (rights.length > 0) return rights
+
+        var list = []
+        document.querySelectorAll('.live-item, .schedule-name, div, span, p, li').forEach(function (el) {
+            if (el.children.length === 0 && /(\d+)%/.test(el.innerText || '')) {
+                if (!el.closest('#tf-floating-panel')) {
+                    list.push(el)
+                }
+            }
+        })
+        return list
+    }
+
+    /**
+     * Walk every progress element, parse the percentage, inject visual badges
      * and tint the parent row. Returns aggregated stats.
      */
     function scanAndRender() {
         const stats = { total: 0, done: 0, doing: 0, todo: 0, firstDoingEl: null }
 
-        document.querySelectorAll('.right').forEach(function (rightEl) {
+        findProgressElements().forEach(function (rightEl) {
             const text = rightEl.innerText || ''
             const match = text.match(/(\d+)%/)
             if (!match) return
