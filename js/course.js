@@ -81,6 +81,11 @@
         restoreLastViewed()
         observeDOM()
         interceptLessonClicks()
+
+        // 智能自动呈现：进入网页后，自动展开所属期数并将具体在学课时（如第30集）直接呈现在屏幕正中间
+        setTimeout(function () {
+            locateActiveLesson(true)
+        }, 800)
     }
 
     /**
@@ -241,11 +246,11 @@
         })
 
         document.getElementById('tf-btn-jump').addEventListener('click', function () {
-            navigateToInProgress(stats)
+            locateActiveLesson(false)
         })
 
         document.getElementById('tf-btn-last').addEventListener('click', function () {
-            jumpToLastViewed()
+            locateActiveLesson(false)
         })
 
         document.getElementById('tf-btn-filter').addEventListener('click', function () {
@@ -256,58 +261,103 @@
         })
     }
 
-    // ─── Navigation ──────────────────────────────────────────
+    // ─── Navigation & Precise Centering ───────────────────────
 
     /**
-     * Scroll to the first lesson that is "in progress" (1%–99%).
+     * 自动智能定位并居中呈现具体课时（例如第30集）
      */
-    function navigateToInProgress(stats) {
-        // Re-scan to get fresh firstDoingEl
-        var freshStats = scanAndRender()
-        var target = freshStats.firstDoingEl
-        if (target) {
-            highlightAndScroll(target)
-        } else {
-            // Fallback: find the first 0% lesson (first unwatched)
-            var firstTodo = findFirstTodoElement()
-            if (firstTodo) {
-                highlightAndScroll(firstTodo)
-            } else {
-                showTip('所有课程都已看完！🎉')
-            }
-        }
-    }
-
-    /**
-     * Read stored last-viewed info, expand the target period,
-     * and scroll to the target lesson.
-     */
-    function jumpToLastViewed() {
-        chrome.storage.local.get([STORAGE_KEY], function (data) {
-            var last = data[STORAGE_KEY]
-            if (!last || !last.period) {
-                showTip('暂无上次学习记录，请先点击"进入学习"开始一节课。')
+    function locateActiveLesson(isAuto) {
+        findActiveLesson(function (target) {
+            if (!target || !target.element) {
+                if (!isAuto) showTip('未检测到进行中的课程')
                 return
             }
 
-            console.log('[TabFlow] Jumping to last viewed:', last)
+            var lessonEl = target.element
+            var periodItem = target.periodItem || lessonEl.closest('.live-item')
 
-            // 1. Find and expand the target period
-            expandPeriod(last.period, function () {
-                // 2. After expanding, find the lesson row and scroll to it
-                if (last.lesson) {
-                    var lessonEl = findLessonByTitle(last.lesson)
-                    if (lessonEl) {
-                        highlightAndScroll(lessonEl)
-                        return
-                    }
+            function doScroll() {
+                // 平滑滚动并直接居中在屏幕正中央！
+                lessonEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+                // 醒目的呼吸灯/脉冲高亮动画
+                lessonEl.classList.remove('tf-highlight')
+                void lessonEl.offsetWidth
+                lessonEl.classList.add('tf-highlight')
+
+                // 标注“📌 当前在看”图钉
+                addCurrentWatchingMarker(lessonEl)
+
+                var title = getLessonTitle(lessonEl)
+                if (!isAuto) {
+                    showTip('已居中定位到：' + (title || '当前学习集数'))
                 }
-                // Fallback: just scroll to the period header
-                var header = findPeriodHeader(last.period)
-                if (header) {
-                    highlightAndScroll(header)
+            }
+
+            // 如果所属期数处于折叠状态，先自动点击展开期数
+            if (periodItem && !isPeriodExpanded(periodItem)) {
+                var header = periodItem.querySelector('.live-header') || periodItem
+                header.click()
+                setTimeout(doScroll, 350)
+            } else {
+                doScroll()
+            }
+        })
+    }
+
+    /**
+     * 智能寻找当前正在学习的课时：
+     * 1. 优先使用本地记录（用户最后点击看的那一集）
+     * 2. 否则从下往上倒序扫描，找到进度在 1% ~ 95% 之间的最前沿集数（例如第30集 17%）
+     * 3. 降级：找第一集 0% 未学习的
+     */
+    function findActiveLesson(callback) {
+        chrome.storage.local.get([STORAGE_KEY], function (data) {
+            var last = data[STORAGE_KEY]
+            if (last && last.lesson) {
+                var storedEl = findLessonElement(last.lesson)
+                if (storedEl) {
+                    var periodEl = storedEl.closest('.live-item')
+                    callback({ element: storedEl, periodItem: periodEl, title: last.lesson })
+                    return
+                }
+            }
+
+            // 倒序寻找进度在 1% ~ 95% 之间的最后一课（最前沿进度，如第30集）
+            var progressElements = findProgressElements()
+            var candidates = []
+
+            progressElements.forEach(function (el) {
+                var text = el.innerText || ''
+                var match = text.match(/(\d+)%/)
+                if (match) {
+                    var percent = parseInt(match[1], 10)
+                    var lessonRow = getLessonContainer(el)
+                    candidates.push({
+                        element: lessonRow || el,
+                        percent: percent,
+                        periodItem: el.closest('.live-item')
+                    })
                 }
             })
+
+            // 倒序找最后一个在学中的（0 < percent <= 95）
+            for (var i = candidates.length - 1; i >= 0; i--) {
+                if (candidates[i].percent > 0 && candidates[i].percent <= 95) {
+                    callback(candidates[i])
+                    return
+                }
+            }
+
+            // 降级：找第一个 0% 未学习的
+            for (var j = 0; j < candidates.length; j++) {
+                if (candidates[j].percent === 0) {
+                    callback(candidates[j])
+                    return
+                }
+            }
+
+            callback(candidates[0] || null)
         })
     }
 
@@ -320,22 +370,9 @@
             var last = data[STORAGE_KEY]
             if (!last || !last.lesson) return
 
-            var lessonEl = findLessonByTitle(last.lesson)
+            var lessonEl = findLessonElement(last.lesson)
             if (lessonEl) {
-                // Remove any existing markers
-                document.querySelectorAll('.tf-last-viewed-marker').forEach(function (m) { m.remove() })
-
-                var marker = document.createElement('span')
-                marker.className = 'tf-last-viewed-marker'
-                marker.textContent = '📌 上次在看'
-
-                // Try to append to the schedule-name inside this row
-                var nameEl = lessonEl.querySelector('.schedule-name')
-                if (nameEl) {
-                    nameEl.appendChild(marker)
-                } else {
-                    lessonEl.appendChild(marker)
-                }
+                addCurrentWatchingMarker(lessonEl)
             }
         })
     }
@@ -452,20 +489,28 @@
         document.addEventListener('click', function (e) {
             var target = e.target
             if (!target) return
+            if (target.closest('#tf-floating-panel')) return
 
-            // Match the "进入学习" button (or a link/button containing that text)
-            var btn = target.closest('button, a, [class*="btn"]')
-            if (!btn) return
-
-            var btnText = (btn.innerText || '').trim()
-            if (btnText !== '进入学习') return
-
-            // Walk up to find the lesson context
-            var lessonContext = extractLessonContext(btn)
-            if (lessonContext) {
-                saveLastViewed(lessonContext.period, lessonContext.lesson)
+            // Match if user clicks on .schedule-name, video icon, or anywhere in the lesson row
+            var sName = target.closest('.schedule-name')
+            if (!sName) {
+                var container = getLessonContainer(target)
+                if (container) {
+                    sName = container.querySelector('.schedule-name')
+                }
             }
-        }, true) // capture phase to run before navigation
+
+            if (sName) {
+                var lessonTitle = (sName.innerText || '').trim()
+                var periodItem = target.closest('.live-item')
+                var headerEl = periodItem ? periodItem.querySelector('.live-header .title, .live-header') : null
+                var periodTitle = headerEl ? (headerEl.innerText || '').trim() : ''
+                if (lessonTitle) {
+                    saveLastViewed(periodTitle, lessonTitle)
+                    console.log('[TabFlow] 记录学习点击:', periodTitle, lessonTitle)
+                }
+            }
+        }, true)
     }
 
     /**
@@ -552,6 +597,54 @@
     // ─── Helpers ─────────────────────────────────────────────
 
     /**
+     * 获取课时的独立行容器（防止取到包含几十节课的外层 .live-item 期数大容器）
+     */
+    function getLessonContainer(el) {
+        if (!el) return null
+        var scheduleName = el.classList && el.classList.contains('schedule-name') ? el : el.querySelector('.schedule-name')
+        var base = scheduleName || el
+
+        var current = base
+        while (current && current.parentElement) {
+            if (current.parentElement.classList.contains('live-item')) {
+                if (!current.classList.contains('live-header')) {
+                    return current
+                }
+            }
+            current = current.parentElement
+        }
+
+        return base.parentElement || base
+    }
+
+    function getLessonTitle(el) {
+        if (!el) return ''
+        var nameEl = el.querySelector('.schedule-name') || el
+        return (nameEl.innerText || '').split('\n')[0].trim()
+    }
+
+    function findLessonElement(title) {
+        var names = document.querySelectorAll('.schedule-name')
+        for (var i = 0; i < names.length; i++) {
+            var text = (names[i].innerText || '').trim()
+            if (text === title || text.includes(title) || title.includes(text)) {
+                return getLessonContainer(names[i]) || names[i]
+            }
+        }
+        return null
+    }
+
+    function addCurrentWatchingMarker(lessonEl) {
+        document.querySelectorAll('.tf-last-viewed-marker').forEach(function (m) { m.remove() })
+        var marker = document.createElement('span')
+        marker.className = 'tf-last-viewed-marker'
+        marker.textContent = '📌 当前在看'
+
+        var nameEl = lessonEl.querySelector('.schedule-name') || lessonEl
+        nameEl.appendChild(marker)
+    }
+
+    /**
      * Smooth-scroll to an element and apply a highlight pulse.
      */
     function highlightAndScroll(el) {
@@ -566,14 +659,7 @@
      * Find a lesson row by partial title match in .schedule-name elements.
      */
     function findLessonByTitle(title) {
-        var names = document.querySelectorAll('.schedule-name')
-        for (var i = 0; i < names.length; i++) {
-            var text = (names[i].innerText || '').trim()
-            if (text === title || text.includes(title) || title.includes(text)) {
-                return names[i].closest('.live-item') || names[i].parentElement || names[i]
-            }
-        }
-        return null
+        return findLessonElement(title)
     }
 
     /**
