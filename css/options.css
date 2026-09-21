@@ -1,0 +1,105 @@
+/* CSS for options.html */
+
+body {
+    background-color: var(--bg-body);
+}
+
+.card {
+    min-width: 380px;
+    border: none;
+    box-shadow: var(--shadow-lg);
+    background: var(--bg-card);
+}
+
+/* Header */
+h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    background: linear-gradient(45deg, var(--primary-color), #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0;
+}
+
+/* Keyboard Shortcuts Table - Removed */
+
+kbd {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    color: var(--text-main);
+    font-family: 'Consolas', monospace;
+    font-size: 0.85em;
+    padding: 0.2em 0.4em;
+}
+
+/* Hosts List */
+#add-host {
+    /* Styles handled by Bootstrap classes now */
+    transition: var(--transition);
+}
+
+#add-host:focus-within {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+#hosts-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+}
+
+#hosts-table tbody tr {
+    background-color: var(--bg-card);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+#hosts-table tbody tr:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+#hosts-table td {
+    padding: 1rem;
+    border: 1px solid var(--border-color);
+    border-style: solid none;
+    vertical-align: middle;
+}
+
+#hosts-table td:first-child {
+    border-left-style: solid;
+    border-top-left-radius: var(--radius-md);
+    border-bottom-left-radius: var(--radius-md);
+}
+
+#hosts-table td:last-child {
+    border-right-style: solid;
+    border-top-right-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+}
+
+/* Form inputs in options */
+.input-group .form-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Switch UI Fixes */
+.list-group-item {
+    background-color: transparent;
+    border-color: var(--border-color);
+    transition: background-color 0.2s ease;
+}
+
+.list-group-item:hover {
+    background-color: var(--bg-body);
+}
+
+.form-switch .form-check-input {
+    height: 1.5em;
+    width: 2.75em;
+    cursor: pointer;
+}

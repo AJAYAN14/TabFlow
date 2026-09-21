@@ -1,0 +1,130 @@
+/* CSS for popup.html */
+
+body {
+    width: 360px; /* Slightly wider for better spacing */
+    height: auto;
+    overflow-x: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+.container-fluid {
+    padding: 1rem;
+}
+
+/* Hero Section for Main Toggle */
+#switch {
+    background: linear-gradient(135deg, var(--bg-card), var(--bg-body));
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: 1.25rem;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+#switch.border-success {
+    border-color: var(--primary-color) !important;
+    background: rgba(79, 70, 229, 0.05); /* Very light primary tint */
+}
+
+#switch.border-danger-subtle {
+    border-color: #ef4444 !important; /* Red 500 */
+    background: rgba(239, 68, 68, 0.05);
+    opacity: 0.8;
+}
+
+#site-hostname {
+    display: block;
+    background: var(--bg-body);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-md);
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.85rem;
+    box-shadow: none;
+}
+
+.form-check-input#toggle-site {
+    width: 3em;
+    height: 1.75em;
+}
+
+/* Options List */
+#options-form {
+    background-color: var(--bg-card);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.form-check.form-switch {
+    padding: 0.75rem 1rem;
+    margin: 0;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row-reverse; /* Switch on right */
+}
+
+.form-check.form-switch:last-child {
+    border-bottom: none;
+}
+
+.form-check-input {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.form-check-label {
+    margin-right: auto;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Icons in labels */
+.form-check-label i {
+    color: var(--text-muted);
+    font-size: 0.85em;
+    margin-left: 0.5em;
+    opacity: 0.7;
+    transition: var(--transition);
+}
+
+.form-check-label:hover i {
+    opacity: 1;
+    color: var(--primary-color);
+}
+
+/* Buttons */
+.btn-outline-info {
+    border-color: var(--border-color);
+    color: var(--text-main);
+    background: var(--bg-card);
+}
+
+.btn-outline-info:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.btn-outline-warning {
+    color: #d97706; /* Amber 600 */
+    border-color: #d97706;
+}
+
+.btn-outline-warning:hover {
+    background-color: #d97706;
+    color: white;
+}
+
+/* Footer */
+.footer-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}

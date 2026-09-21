@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>在新标签页打开链接</title>
+    <link rel="icon" href="../images/logo.svg" sizes="any">
+    <link rel="stylesheet" type="text/css" href="../dist/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../dist/fontawesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/main.css">
+    <link rel="stylesheet" type="text/css" href="../css/popup.css">
+    <script type="text/javascript" src="../js/theme.js"></script>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="d-none grant-perms mb-3">
+        <div class="card bg-danger-subtle border-danger text-danger p-3 mb-2">
+            <p class="small mb-2"><i class="fa-solid fa-triangle-exclamation me-1"></i> 需要主机权限才能运行</p>
+            <button class="btn btn-sm btn-danger w-100 grant-permissions" type="button">
+                <i class="fa-solid fa-check-double me-1"></i> 授予权限
+            </button>
+        </div>
+    </div>
+
+    <label for="toggle-site" class="w-100 mb-3 has-perms">
+        <div id="switch" class="border-2">
+            <div class="d-flex flex-column align-items-center justify-content-center">
+                <kbd id="site-hostname" class="mb-3 text-truncate" style="max-width: 100%;">无效站点</kbd>
+                <div class="form-check form-switch form-switch-lg mb-0 p-0 d-flex align-items-center gap-3">
+                    <input class="form-check-input m-0" type="checkbox" role="switch" id="toggle-site" disabled>
+                    <span class="fw-bold text-nowrap">在新标签页打开</span>
+                </div>
+            </div>
+        </div>
+    </label>
+
+    <a id="enable-temp" class="btn btn-outline-warning w-100 mb-4 disabled d-flex align-items-center justify-content-center py-2" role="button">
+        <i class="fa-solid fa-stopwatch me-2"></i> 临时启用 (本页)
+    </a>
+
+    <h6 class="text-muted text-uppercase small fw-bold mb-2 px-1">设置</h6>
+    <form id="options-form" class="shadow-sm">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="openBackground">
+            <label class="form-check-label" for="openBackground" aria-describedby="openBackgroundHelp">
+                在后台打开链接
+                <span class="text-warning-emphasis me-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="实验性功能。">
+                    <i class="fa-solid fa-flask ms-1"></i>
+                </span>
+                <span data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="在后台打开更新的链接。">
+                    <i class="fa-solid fa-circle-info ms-1"></i>
+                </span>
+            </label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="onScroll">
+            <label class="form-check-label" for="onScroll" aria-describedby="onScrollHelp">
+                滚动时更新链接
+                <span class="text-warning-emphasis me-1" data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="实验性功能。">
+                    <i class="fa-solid fa-flask ms-1"></i>
+                </span>
+                <span data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="每次滚动事件后更新链接。">
+                    <i class="fa-solid fa-circle-info ms-1"></i>
+                </span>
+            </label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="onAttributes">
+            <label class="form-check-label" for="onAttributes" aria-describedby="onAttributesHelp">
+                属性变化时更新链接
+                <span data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="所有属性更改时更新链接。">
+                    <i class="fa-solid fa-circle-info ms-1"></i>
+                </span>
+            </label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="anchorLinks">
+            <label class="form-check-label" for="anchorLinks" aria-describedby="anchorLinksHelp">
+                更新锚点链接
+                <span data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="在新标签页打开同源锚点链接。">
+                    <i class="fa-solid fa-circle-info ms-1"></i>
+                </span>
+            </label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="autoReload">
+            <label class="form-check-label" for="autoReload" aria-describedby="autoReloadHelp">
+                禁用时自动重新加载
+                <span data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="禁用站点时自动重新加载页面。">
+                    <i class="fa-solid fa-circle-info ms-1"></i>
+                </span>
+            </label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="updateAll" data-warning="text-danger-emphasis" data-reverse="yes">
+            <label class="form-check-label" for="updateAll" aria-describedby="updateAllHelp">
+                变更时更新所有标签页
+                <span data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="警告：禁用此功能可能会导致意外行为。">
+                    <i class="fa-solid fa-circle-info ms-1"></i>
+                </span>
+            </label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="noOpener">
+            <label class="form-check-label" for="noOpener" aria-describedby="noOpenerHelp">
+                向链接添加 Noopener
+                <span data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="如果打开链接时遇到问题，请禁用此选项。">
+                    <i class="fa-solid fa-circle-info ms-1"></i>
+                </span>
+            </label>
+        </div>
+        <div class="form-check form-switch">
+            <input class="form-check-input options" type="checkbox" role="switch" id="contextMenu">
+            <label class="form-check-label" for="contextMenu" aria-describedby="contextMenuHelp">
+                启用右键菜单
+                <span data-bs-toggle="tooltip" data-bs-title="右键单击显示上下文菜单。">
+                    <i class="fa-solid fa-circle-info ms-1"></i>
+                </span>
+            </label>
+        </div>
+    </form>
+    <div class="d-grid g-2 gap-2 mt-4 mb-3">
+        <a class="btn btn-sm btn-outline-secondary w-100 rounded-pill" href="../html/options.html">
+            <i class="fa-solid fa-sliders me-1"></i> 打开选项
+        </a>
+    </div>
+
+    <div class="d-flex justify-content-center align-items-center text-center footer-text pb-2">
+        <img src="../images/logo.svg" width="14" height="14" alt="Icon" class="me-2 opacity-75">
+        <span class="opacity-75">TabFlow v<span class="version"></span></span>
+    </div>
+</div> <!-- container -->
+
+<script type="text/javascript" src="../dist/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="../dist/bootstrap/bootstrap.bundle.min.js"></script>
+<script type="module" src="../js/popup.js"></script>
+
+</body>
+</html>

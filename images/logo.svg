@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <!-- Flow strokes (no background) -->
+  <!-- All strokes aligned at bottom (y=196) -->
+
+  <path
+    d="M64 84h98c34 0 62 22 62 56s-28 56-62 56H64"
+    stroke="#1F2937"
+    stroke-width="20"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+
+  <path
+    d="M64 126h86c24 0 44 14 44 35s-20 35-44 35H64"
+    stroke="#0F766E"
+    stroke-width="20"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.72"
+  />
+
+  <path
+    d="M64 162h72c18 0 32 9 32 17s-14 17-32 17H64"
+    stroke="#2563EB"
+    stroke-width="20"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.62"
+  />
+</svg>

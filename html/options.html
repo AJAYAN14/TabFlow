@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>在新标签页打开链接</title>
+    <link rel="icon" href="../images/logo.svg" sizes="any">
+    <link rel="stylesheet" type="text/css" href="../dist/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../dist/fontawesome/css/all.min.css">
+    <link rel="stylesheet" type="text/css" href="../css/main.css">
+    <link rel="stylesheet" type="text/css" href="../css/options.css">
+    <script type="text/javascript" src="../js/theme.js"></script>
+</head>
+<body>
+
+<div class="container-fluid p-4">
+    <div class="row justify-content-center">
+        <div class="col-xl-9 col-lg-10 col-12">
+            <div class="card mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <img src="../images/logo.svg" class="me-3 rounded-3 shadow-sm" height="48" width="48" alt="Logo">
+                        <div>
+                            <h1 class="mb-0 fs-3">TabFlow</h1>
+                            <p class="text-muted mb-0 small">版本 v<span class="version"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                             <h6 class="text-uppercase text-muted fw-bold small mb-3">快捷键</h6>
+                             <div id="keyboard-shortcuts-list" class="list-group list-group-flush rounded-3 border">
+                                <div class="template d-none list-group-item d-flex justify-content-between align-items-center py-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fa-regular fa-keyboard me-3 text-muted"></i>
+                                        <span class="description mb-0"></span>
+                                    </div>
+                                    <kbd class="shortcut">未设置</kbd>
+                                </div>
+                             </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6 class="text-uppercase text-muted fw-bold small mb-3">权限状态</h6>
+                            <div class="d-none grant-perms">
+                                <div class="alert alert-warning border-0 shadow-sm mb-0">
+                                    <h6 class="alert-heading h6"><i class="fa-solid fa-triangle-exclamation me-1"></i> 需要权限</h6>
+                                    <p class="small mb-2">此扩展需要访问所有主机的权限才能正常工作。</p>
+                                    <button class="btn btn-sm btn-warning w-100 grant-permissions" type="button">
+                                        <i class="fa-solid fa-check-double me-1"></i> 授予主机权限
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="alert alert-success border-0 shadow-sm mb-0 d-none has-perms">
+                                <i class="fa-solid fa-check-circle me-1"></i> 已授予所有必要权限。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="card h-100">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4"><i class="fa-solid fa-sliders me-2 text-primary"></i> 通用设置</h5>
+                            <form id="options-form">
+                                <div class="list-group list-group-flush rounded-3 border">
+                                    
+                                    <!-- 在后台打开链接 -->
+                                    <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                        <label class="form-check-label stretched-link m-0" for="openBackground">
+                                            在后台打开链接
+                                            <i class="fa-solid fa-flask text-warning-emphasis ms-1 position-relative z-2" data-bs-toggle="tooltip" data-bs-title="实验性功能"></i>
+                                            <i class="fa-regular fa-circle-question text-muted ms-1 position-relative z-2" data-bs-toggle="tooltip" data-bs-title="在后台打开更新的链接"></i>
+                                        </label>
+                                        <div class="form-check form-switch m-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="openBackground">
+                                        </div>
+                                    </div>
+
+                                    <!-- 滚动时更新链接 -->
+                                    <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                        <label class="form-check-label stretched-link m-0" for="onScroll">
+                                            滚动时更新链接
+                                            <i class="fa-solid fa-flask text-warning-emphasis ms-1 position-relative z-2" data-bs-toggle="tooltip" data-bs-title="实验性功能"></i>
+                                            <i class="fa-regular fa-circle-question text-muted ms-1 position-relative z-2" data-bs-toggle="tooltip" data-bs-title="每次滚动事件后更新链接"></i>
+                                        </label>
+                                        <div class="form-check form-switch m-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="onScroll">
+                                        </div>
+                                    </div>
+
+                                    <!-- 属性变化时更新链接 -->
+                                    <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                        <label class="form-check-label stretched-link m-0" for="onAttributes">
+                                            属性变化时更新链接
+                                            <i class="fa-regular fa-circle-question text-muted ms-1 position-relative z-2" data-bs-toggle="tooltip" data-bs-title="所有属性更改时更新链接"></i>
+                                        </label>
+                                        <div class="form-check form-switch m-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="onAttributes">
+                                        </div>
+                                    </div>
+
+                                    <!-- 更新锚点链接 -->
+                                    <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                        <label class="form-check-label stretched-link m-0" for="anchorLinks">
+                                            更新锚点链接
+                                            <i class="fa-regular fa-circle-question text-muted ms-1 position-relative z-2" data-bs-toggle="tooltip" data-bs-title="在新标签页打开同源锚点链接"></i>
+                                        </label>
+                                        <div class="form-check form-switch m-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="anchorLinks">
+                                        </div>
+                                    </div>
+
+                                    <!-- 禁用时自动重新加载 -->
+                                    <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                        <label class="form-check-label stretched-link m-0" for="autoReload">
+                                            禁用时自动重新加载
+                                            <i class="fa-regular fa-circle-question text-muted ms-1 position-relative z-2" data-bs-toggle="tooltip" data-bs-title="禁用站点时自动重新加载页面"></i>
+                                        </label>
+                                        <div class="form-check form-switch m-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="autoReload">
+                                        </div>
+                                    </div>
+
+                                    <!-- 变更时更新所有标签页 -->
+                                    <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                        <div class="d-flex flex-column">
+                                            <label class="form-check-label stretched-link m-0" for="updateAll">
+                                                变更时更新所有标签页
+                                                <i class="fa-solid fa-triangle-exclamation text-warning ms-1 position-relative z-2" data-bs-toggle="tooltip" data-bs-title="警告：禁用此功能可能会导致意外行为"></i>
+                                            </label>
+                                            <div id="updateAllWarning" class="small text-warning mt-1" style="display: none">
+                                                禁用此选项可能会导致意外行为。
+                                            </div>
+                                        </div>
+                                        <div class="form-check form-switch m-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="updateAll"
+                                                data-warning="text-danger-emphasis" data-related="updateAllWarning" data-reverse="yes">
+                                        </div>
+                                    </div>
+
+                                    <!-- 向链接添加 Noopener -->
+                                    <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                        <label class="form-check-label stretched-link m-0" for="noOpener">
+                                            向链接添加 Noopener
+                                            <i class="fa-regular fa-circle-question text-muted ms-1 position-relative z-2" data-bs-toggle="tooltip" data-bs-title="如果打开链接时遇到问题，请禁用此选项"></i>
+                                        </label>
+                                        <div class="form-check form-switch m-0">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="noOpener">
+                                        </div>
+                                    </div>
+
+                                    <!-- 启用右键菜单 -->
+                                    <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                        <label class="form-check-label stretched-link m-0" for="contextMenu">
+                                            启用右键菜单
+                                            <i class="fa-regular fa-circle-question text-muted ms-1 position-relative z-2" data-bs-toggle="tooltip" data-bs-title="右键单击显示上下文菜单"></i>
+                                        </label>
+                                        <div class="form-check form-switch m-0">
+                                            <input class="form-check-input options" type="checkbox" role="switch" id="contextMenu">
+                                        </div>
+                                    </div>
+
+                                    <!-- 更新时显示发行说明 -->
+                                    <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                        <label class="form-check-label stretched-link m-0" for="showUpdate">
+                                            更新时显示发行说明
+                                            <i class="fa-regular fa-circle-question text-muted ms-1 position-relative z-2" data-bs-toggle="tooltip" data-bs-title="版本更新时显示发行说明"></i>
+                                        </label>
+                                        <div class="form-check form-switch m-0">
+                                            <input class="form-check-input options" type="checkbox" role="switch" id="showUpdate">
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="card h-100">
+                        <div class="card-body p-4">
+                            <h5 class="card-title mb-4"><i class="fa-solid fa-server me-2 text-primary"></i> 站点管理</h5>
+                            
+                            <form id="add-host" class="p-4 bg-body-tertiary rounded-4 mb-4 border border-opacity-10">
+                                <label class="form-label fw-bold text-muted text-uppercase mb-3" for="host-name">添加新主机</label>
+                                <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden">
+                                    <span class="input-group-text bg-white border-0 ps-3"><i class="fa-solid fa-globe text-primary"></i></span>
+                                    <input id="host-name" type="text" class="form-control border-0 ps-2" placeholder="example.com" aria-label="主机名" required>
+                                    <button class="btn btn-primary px-4 fw-bold" type="submit" id="add-host-btn">
+                                        <i class="fa-solid fa-plus me-2"></i>添加
+                                    </button>
+                                </div>
+                                <div class="form-text mt-2 ms-1"><i class="fa-regular fa-circle-check me-1 text-success"></i> 支持域名自动补全</div>
+                            </form>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-uppercase text-muted fw-bold small mb-0">已启用的主机</h6>
+                                <div>
+                                    <input type="file" id="hosts-input" style="display: none;" />
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button id="import-hosts" class="btn btn-outline-secondary" title="导入">
+                                            <i class="fa-solid fa-file-arrow-up"></i>
+                                        </button>
+                                        <button id="export-hosts" class="btn btn-outline-secondary" title="导出">
+                                            <i class="fa-solid fa-file-arrow-down"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive border rounded-3" style="max-height: 400px; overflow-y: auto;">
+                                <table id="hosts-table" class="table table-hover mb-0">
+                                    <thead class="bg-body-tertiary sticky-top">
+                                        <tr>
+                                            <th scope="col" class="text-center py-2" style="width: 80px;">操作</th>
+                                            <th scope="col" class="py-2">主机名</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="border-top-0"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-5 mb-3">
+                 <a id="copy-support" href="#0" class="text-muted small text-decoration-none">
+                    <i class="fa-regular fa-copy me-1"></i> 复制调试信息
+                 </a>
+            </div>
+
+        </div> <!-- col -->
+    </div> <!-- row -->
+</div> <!-- container -->
+
+<div aria-live="polite" aria-atomic="true" class="">
+    <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+</div> <!-- toast-container -->
+
+<div class="d-none">
+    <div class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+        <div class="toast-body"></div>
+    </div>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" id="bi-dot" viewBox="0 0 16 16">
+        <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
+    </svg>
+    <i class="fa-solid fa-trash-can"></i>
+</div> <!-- d-none -->
+
+<script type="text/javascript" src="../dist/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="../dist/bootstrap/bootstrap.bundle.min.js"></script>
+<script type="module" src="../js/options.js"></script>
+
+</body>
+</html>

@@ -1,40 +1,53 @@
 {
   "manifest_version": 3,
-  "version": "0.0.1",
-  "name": "Open Links in New Tab",
-  "short_name": "Open in Tab",
-  "description": "Modern Web Extension to Open Links in New Tabs for Specified Domains or Temporarily on Any Tab.",
-  "homepage_url": "https://open-links-in-new-tab.cssnr.com/",
+  "version": "1.0.0",
+  "name": "TabFlow",
+  "short_name": "TabFlow",
+  "description": "现代化的 Web 扩展，用于在指定域名或任何标签页上临时在新标签页中打开链接。",
   "author": "Shane",
   "commands": {
     "_execute_action": {
       "suggested_key": {
         "default": "Alt+Shift+X"
       },
-      "description": "Show Popup"
+      "description": "显示弹出窗口"
     },
     "toggle-site": {
       "suggested_key": {
         "default": "Alt+Shift+N"
       },
-      "description": "Toggle Current Domain"
+      "description": "切换当前域名"
     },
     "enable-temp": {
       "suggested_key": {
         "default": "Alt+Shift+W"
       },
-      "description": "Enable Temporarily"
+      "description": "临时启用"
     }
   },
-  "permissions": ["activeTab", "contextMenus", "scripting", "storage"],
-  "host_permissions": ["https://*/*", "http://*/*"],
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
   "content_scripts": [
     {
-      "matches": ["https://*/*", "http://*/*"],
-      "js": ["js/tab.js"]
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ],
+      "js": [
+        "js/tab.js"
+      ]
     }
   ],
   "background": {
+    "service_worker": "js/service-worker.js",
     "type": "module"
   },
   "options_ui": {
@@ -42,7 +55,7 @@
     "open_in_tab": true
   },
   "action": {
-    "default_title": "Open Links in New Tab",
+    "default_title": "TabFlow",
     "default_popup": "html/popup.html",
     "default_icon": {
       "16": "images/logo16.png",
