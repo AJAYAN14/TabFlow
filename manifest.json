@@ -44,6 +44,19 @@
       "js": [
         "js/tab.js"
       ]
+    },
+    {
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ],
+      "js": [
+        "js/course.js"
+      ],
+      "css": [
+        "css/course.css"
+      ],
+      "run_at": "document_idle"
     }
   ],
   "background": {

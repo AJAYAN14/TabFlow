@@ -1,0 +1,270 @@
+/* ============================================================
+   TabFlow Course Progress Enhancer — Styles
+   Injected only on pages that pass feature detection.
+   ============================================================ */
+
+/* ── Progress Badge (inline label next to each lesson) ────── */
+
+.tf-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.6;
+    margin-left: 8px;
+    vertical-align: middle;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+    transition: opacity 0.2s ease;
+}
+
+.tf-badge-done {
+    background: #e6f4ea;
+    color: #137333;
+    border: 1px solid #34a85380;
+}
+
+.tf-badge-doing {
+    background: #fef7e0;
+    color: #b06000;
+    border: 1px solid #f9ab0080;
+}
+
+.tf-badge-todo {
+    background: #f1f3f4;
+    color: #80868b;
+    border: 1px solid #dadce080;
+}
+
+/* ── Row-level background tinting ─────────────────────────── */
+
+.tf-row-done {
+    background-color: rgba(230, 244, 234, 0.30) !important;
+    transition: background-color 0.3s ease !important;
+}
+
+.tf-row-doing {
+    background-color: rgba(254, 247, 224, 0.50) !important;
+    border-left: 4px solid #f9ab00 !important;
+    transition: background-color 0.3s ease !important;
+}
+
+/* ── Floating Control Panel ───────────────────────────────── */
+
+#tf-floating-panel {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 2147483647; /* max z-index to stay on top */
+    min-width: 240px;
+    max-width: 320px;
+    padding: 16px 20px;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.06);
+
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #1e293b;
+
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    /* Draggable cursor */
+    cursor: default;
+    user-select: none;
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+#tf-floating-panel:hover {
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.16),
+        0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+#tf-floating-panel.tf-dragging {
+    opacity: 0.92;
+    transform: scale(1.02);
+    transition: none;
+}
+
+/* Panel Header */
+#tf-floating-panel .tf-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a73e8;
+}
+
+#tf-floating-panel .tf-panel-header .tf-brand {
+    font-size: 11px;
+    font-weight: 400;
+    color: #94a3b8;
+}
+
+/* Stats row */
+#tf-floating-panel .tf-stats {
+    font-size: 12px;
+    color: #555;
+    line-height: 1.5;
+}
+
+#tf-floating-panel .tf-stats b {
+    font-weight: 700;
+}
+
+#tf-floating-panel .tf-stats .tf-doing-count {
+    color: #b06000;
+}
+
+#tf-floating-panel .tf-stats .tf-todo-count {
+    color: #80868b;
+}
+
+/* Panel progress bar */
+#tf-floating-panel .tf-progress-bar-wrap {
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+#tf-floating-panel .tf-progress-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #34a853, #1a73e8);
+    transition: width 0.4s ease;
+}
+
+/* Buttons */
+.tf-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 9px 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.1s ease;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.tf-btn:active {
+    transform: scale(0.97);
+}
+
+.tf-btn-primary {
+    background: #1a73e8;
+    color: #fff;
+}
+
+.tf-btn-primary:hover {
+    background: #1557b0;
+}
+
+.tf-btn-secondary {
+    background: #f1f3f4;
+    color: #3c4043;
+    border: 1px solid #dadce0;
+}
+
+.tf-btn-secondary:hover {
+    background: #e8eaed;
+}
+
+.tf-btn-filter {
+    background: transparent;
+    color: #5f6368;
+    border: 1px dashed #dadce0;
+    font-size: 12px;
+    padding: 6px 10px;
+}
+
+.tf-btn-filter:hover {
+    background: #f8f9fa;
+    border-color: #bdc1c6;
+}
+
+.tf-btn-filter.tf-active {
+    background: #e8f0fe;
+    color: #1a73e8;
+    border-color: #1a73e8;
+    border-style: solid;
+}
+
+/* ── Scroll-to-target highlight animation ─────────────────── */
+
+@keyframes tf-pulse {
+    0%   { outline-color: rgba(26, 115, 232, 0.8); outline-offset: 0; }
+    50%  { outline-color: rgba(26, 115, 232, 0.3); outline-offset: 4px; }
+    100% { outline-color: rgba(26, 115, 232, 0);   outline-offset: 8px; }
+}
+
+.tf-highlight {
+    outline: 3px solid #1a73e8;
+    outline-offset: 2px;
+    animation: tf-pulse 0.7s ease-out 2;
+    border-radius: 4px;
+}
+
+/* ── Hidden rows (filter mode) ────────────────────────────── */
+
+.tf-hidden {
+    display: none !important;
+}
+
+/* ── Last-viewed indicator ────────────────────────────────── */
+
+.tf-last-viewed-marker {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 8px;
+    margin-left: 6px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    background: #e8f0fe;
+    color: #1a73e8;
+    border: 1px solid #1a73e880;
+}
+
+/* ── Minimize toggle ──────────────────────────────────────── */
+
+.tf-minimize-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #94a3b8;
+    padding: 0 2px;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.tf-minimize-btn:hover {
+    color: #475569;
+}
+
+#tf-floating-panel.tf-minimized .tf-panel-body {
+    display: none;
+}
