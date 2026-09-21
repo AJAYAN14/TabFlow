@@ -14,26 +14,68 @@
     // Feature-detection selectors (all three must exist to activate)
     const FINGERPRINT_SELECTORS = ['.live-item', '.schedule-name', '.live-header']
 
-    // ─── Feature Detection (Gate) ────────────────────────────
-    // Run at document_idle, DOM should be ready.
-    if (!detectCoursePage()) {
-        return // Not a course page — do nothing, zero side effects.
+    // ─── Options Gate & Feature Detection ────────────────────
+    chrome.storage.sync.get(['options'], function (res) {
+        var opts = res && res.options ? res.options : {}
+        if (opts.enableCourseEnhancer === false) {
+            console.log('[TabFlow] 视频学习进度增强已在设置中关闭。')
+            return
+        }
+        startEnhancer()
+    })
+
+    // Listen for options changes dynamically
+    if (chrome.storage.onChanged) {
+        chrome.storage.onChanged.addListener(function (changes, area) {
+            if (area === 'sync' && changes.options) {
+                var newOpts = changes.options.newValue || {}
+                if (newOpts.enableCourseEnhancer === false) {
+                    teardownEnhancer()
+                } else if (newOpts.enableCourseEnhancer === true) {
+                    startEnhancer()
+                }
+            }
+        })
     }
 
-    console.log('[TabFlow] 🎓 Course page detected. Activating progress enhancer.')
+    function startEnhancer() {
+        if (detectCoursePage()) {
+            console.log('[TabFlow] 🎓 Course page detected. Activating progress enhancer.')
+            init()
+        } else {
+            // Check asynchronously if DOM loads dynamically (SPA / Ajax)
+            var attempts = 0
+            var checkInterval = setInterval(function () {
+                attempts++
+                if (detectCoursePage()) {
+                    clearInterval(checkInterval)
+                    console.log('[TabFlow] 🎓 Course page detected via async check.')
+                    init()
+                } else if (attempts >= 15) {
+                    clearInterval(checkInterval)
+                }
+            }, 500)
+        }
+    }
+
+    function teardownEnhancer() {
+        var p = document.getElementById('tf-floating-panel')
+        if (p) p.remove()
+        document.querySelectorAll('.tf-badge, .tf-last-viewed-marker').forEach(function (el) { el.remove() })
+        document.querySelectorAll('.tf-row-done, .tf-row-doing').forEach(function (el) {
+            el.classList.remove('tf-row-done', 'tf-row-doing')
+        })
+    }
 
     // ─── State ───────────────────────────────────────────────
     let filterActive = false
     let panelMinimized = false
+    let initialized = false
 
     // ─── Bootstrap ───────────────────────────────────────────
-    init()
-
-    // ==========================================================
-    // Core Functions
-    // ==========================================================
-
     function init() {
+        if (initialized) return
+        initialized = true
         const stats = scanAndRender()
         buildPanel(stats)
         restoreLastViewed()
@@ -43,12 +85,13 @@
 
     /**
      * Detect whether the current page is a course platform page.
-     * Requires all three fingerprint selectors to be present.
+     * Checks for course list elements (.schedule-name, .live-item, or percentage text)
      */
     function detectCoursePage() {
-        return FINGERPRINT_SELECTORS.every(function (sel) {
-            return document.querySelector(sel) !== null
-        })
+        var hasSchedule = document.querySelector('.schedule-name') !== null
+        var hasLiveItem = document.querySelector('.live-item') !== null
+        var hasHeader = document.querySelector('.live-header') !== null
+        return (hasSchedule && hasLiveItem) || (hasLiveItem && hasHeader) || (hasSchedule && hasHeader)
     }
 
     // ─── Scan & Render ───────────────────────────────────────
@@ -81,10 +124,11 @@
             var badge = document.createElement('span')
             badge.className = 'tf-badge'
 
-            if (percent === 100) {
+            // 大于95%即判定为已看完（显示绿色高亮标签）
+            if (percent > 95) {
                 stats.done++
                 badge.classList.add('tf-badge-done')
-                badge.textContent = '✅ 已看完'
+                badge.textContent = percent === 100 ? '✅ 已看完' : '✅ ' + percent + '% 已看完'
                 if (row) row.classList.add('tf-row-done')
             } else if (percent > 0) {
                 stats.doing++
@@ -364,7 +408,7 @@
             var lessonRow = rightEl.parentElement
             if (!lessonRow) return
 
-            if (showOnlyIncomplete && percent === 100) {
+            if (showOnlyIncomplete && percent > 95) {
                 lessonRow.classList.add('tf-hidden')
             } else {
                 lessonRow.classList.remove('tf-hidden')
