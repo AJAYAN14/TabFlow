@@ -29,7 +29,8 @@
     "activeTab",
     "contextMenus",
     "scripting",
-    "storage"
+    "storage",
+    "tabs"
   ],
   "host_permissions": [
     "https://*/*",

@@ -56,6 +56,25 @@ async function initOptions() {
     console.debug('options, sites:', options, sites)
     updateOptions(options)
     updateTable(sites)
+
+    // 智能识别：输入框在粘贴/变动时立刻自动提取纯域名
+    const hostNameInput = document.getElementById('host-name')
+    if (hostNameInput && !hostNameInput.dataset.bound) {
+        hostNameInput.dataset.bound = 'true'
+        hostNameInput.addEventListener('paste', () => {
+            setTimeout(() => {
+                const cleaned = cleanDomain(hostNameInput.value)
+                if (cleaned) hostNameInput.value = cleaned
+            }, 10)
+        })
+        hostNameInput.addEventListener('change', () => {
+            const cleaned = cleanDomain(hostNameInput.value)
+            if (cleaned) hostNameInput.value = cleaned
+        })
+    }
+
+    // 智能识别：一键从当前已打开的标签页添加
+    await loadOpenTabs()
 }
 
 /**
@@ -72,6 +91,7 @@ function onChanged(changes, namespace) {
         }
         if (namespace === 'sync' && key === 'sites') {
             updateTable(newValue)
+            loadOpenTabs()
         }
     }
 }
@@ -115,6 +135,36 @@ function updateTable(data) {
 }
 
 /**
+ * 智能域名清洗与识别：
+ * 无论粘贴完整网址（如 https://ke.qq.com/course/123?id=1）、无协议路径还是纯域名，
+ * 均自动识别并提取出纯域名（如 ke.qq.com）
+ */
+function cleanDomain(input) {
+    if (!input || typeof input !== 'string') return ''
+    let val = input.trim()
+    if (!val) return ''
+
+    const urlMatch = val.match(/https?:\/\/[^\s/$.?#].[^\s]*/i)
+    if (urlMatch) {
+        val = urlMatch[0]
+    }
+
+    if (val.includes('://')) {
+        try {
+            return new URL(val).hostname.toLowerCase()
+        } catch (_) {}
+    }
+
+    try {
+        const u = new URL('https://' + val)
+        return u.hostname.toLowerCase()
+    } catch (_) {}
+
+    const domainMatch = val.match(/([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/)
+    return domainMatch ? domainMatch[1].toLowerCase() : val.toLowerCase()
+}
+
+/**
  * Add Host Callback
  * @function addHost
  * @param {SubmitEvent} event
@@ -123,32 +173,26 @@ async function addHost(event) {
     console.debug('addHost:', event)
     event.preventDefault()
     const input = event.target.elements['host-name']
-    let value = input.value
-    console.debug('value:', value)
-    if (!value.includes('://')) {
-        value = `https://${value}`
-    }
-    let url
-    try {
-        url = new URL(value)
-    } catch (e) {
-        showToast(e.message, 'danger')
+    const hostname = cleanDomain(input.value)
+
+    if (!hostname || !hostname.includes('.')) {
+        showToast('未能识别出有效的网站域名，请检查输入', 'danger')
         input.focus()
         input.select()
-        return console.info(e)
+        return
     }
-    console.log('url:', url)
-    const { sites } = await chrome.storage.sync.get(['sites'])
-    if (sites.includes(url.hostname)) {
-        showToast(`主机已存在：${url.hostname}`, 'warning')
+
+    console.log('Recognized domain:', hostname)
+    const { sites = [] } = await chrome.storage.sync.get(['sites'])
+    if (sites.includes(hostname)) {
+        showToast(`主机已存在：${hostname}`, 'warning')
         input.focus()
         input.select()
-        return console.info('Existing Host: url:', url)
+        return
     } else {
-        sites.push(url.hostname)
+        sites.push(hostname)
         await chrome.storage.sync.set({ sites })
-        showToast(`已添加主机：${url.hostname}`)
-        console.log(`Added Host: ${url.hostname}`, url)
+        showToast(`已智能识别并添加：${hostname}`)
         input.value = ''
         input.focus()
     }
@@ -295,3 +339,88 @@ async function copySupport(event) {
     await navigator.clipboard.writeText(result.join('\n'))
     showToast('支持信息已复制。')
 }
+
+/**
+ * 智能读取浏览器中已打开的标签页，提供一键快捷添加
+ */
+async function loadOpenTabs() {
+    const section = document.getElementById('quick-add-section')
+    const container = document.getElementById('quick-add-tabs')
+    if (!section || !container) return
+
+    const refreshBtn = document.getElementById('refresh-tabs-btn')
+    if (refreshBtn && !refreshBtn.dataset.bound) {
+        refreshBtn.dataset.bound = 'true'
+        refreshBtn.addEventListener('click', () => loadOpenTabs())
+    }
+
+    try {
+        const tabs = await chrome.tabs.query({})
+        const { sites = [] } = await chrome.storage.sync.get(['sites'])
+
+        const uniqueTabs = new Map()
+        tabs.forEach((tab) => {
+            if (!tab.url) return
+            try {
+                const u = new URL(tab.url)
+                if (
+                    (u.protocol === 'http:' || u.protocol === 'https:') &&
+                    !sites.includes(u.hostname)
+                ) {
+                    if (!uniqueTabs.has(u.hostname)) {
+                        uniqueTabs.set(u.hostname, {
+                            title: tab.title || u.hostname,
+                            hostname: u.hostname,
+                            favIconUrl: tab.favIconUrl,
+                        })
+                    }
+                }
+            } catch (_) {}
+        })
+
+        if (uniqueTabs.size === 0) {
+            section.classList.add('d-none')
+            return
+        }
+
+        container.innerHTML = ''
+        uniqueTabs.forEach(({ title, hostname, favIconUrl }) => {
+            const badge = document.createElement('button')
+            badge.type = 'button'
+            badge.className =
+                'btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 text-truncate py-1 px-2'
+            badge.style.maxWidth = '260px'
+            badge.title = `点击一键添加：${hostname}\n(${title})`
+
+            const icon = favIconUrl
+                ? `<img src="${favIconUrl}" width="14" height="14" class="rounded-circle me-1" onerror="this.style.display='none'">`
+                : `<i class="fa-solid fa-globe text-muted me-1 small"></i>`
+
+            const shortTitle =
+                title.length > 14 ? title.slice(0, 14) + '...' : title
+
+            badge.innerHTML = `${icon}<span class="text-truncate">${shortTitle}</span><span class="badge bg-primary ms-1">+添加</span>`
+
+            badge.addEventListener('click', async () => {
+                const { sites: currentSites = [] } = await chrome.storage.sync.get(['sites'])
+                if (!currentSites.includes(hostname)) {
+                    currentSites.push(hostname)
+                    await chrome.storage.sync.set({ sites: currentSites })
+                    showToast(`已添加：${hostname}`)
+                }
+                badge.remove()
+                if (container.children.length === 0) {
+                    section.classList.add('d-none')
+                }
+            })
+
+            container.appendChild(badge)
+        })
+
+        section.classList.remove('d-none')
+    } catch (e) {
+        console.warn('loadOpenTabs:', e)
+        section.classList.add('d-none')
+    }
+}
+

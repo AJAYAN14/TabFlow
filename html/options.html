@@ -189,12 +189,27 @@
                                 <label class="form-label fw-bold text-muted text-uppercase mb-3" for="host-name">添加新主机</label>
                                 <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden">
                                     <span class="input-group-text bg-white border-0 ps-3"><i class="fa-solid fa-globe text-primary"></i></span>
-                                    <input id="host-name" type="text" class="form-control border-0 ps-2" placeholder="example.com" aria-label="主机名" required>
+                                    <input id="host-name" type="text" class="form-control border-0 ps-2" placeholder="粘贴任意网址或域名，自动清洗" aria-label="主机名" required>
                                     <button class="btn btn-primary px-4 fw-bold" type="submit" id="add-host-btn">
                                         <i class="fa-solid fa-plus me-2"></i>添加
                                     </button>
                                 </div>
-                                <div class="form-text mt-2 ms-1"><i class="fa-regular fa-circle-check me-1 text-success"></i> 支持域名自动补全</div>
+                                <div class="form-text mt-2 ms-1 text-muted small">
+                                    <i class="fa-regular fa-circle-check me-1 text-success"></i> 支持直接粘贴完整网址（如 https://...），自动清洗提取纯域名
+                                </div>
+
+                                <!-- 智能化：一键从已打开的标签页添加 -->
+                                <div id="quick-add-section" class="mt-3 pt-3 border-top d-none">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small fw-bold text-muted">
+                                            <i class="fa-solid fa-bolt text-warning me-1"></i> 检测到已打开的标签页（点击一键添加）：
+                                        </span>
+                                        <button id="refresh-tabs-btn" class="btn btn-link btn-sm text-decoration-none p-0 text-muted" type="button" title="刷新标签页">
+                                            <i class="fa-solid fa-rotate-right"></i> 刷新
+                                        </button>
+                                    </div>
+                                    <div id="quick-add-tabs" class="d-flex flex-wrap gap-2"></div>
+                                </div>
                             </form>
 
                             <div class="d-flex justify-content-between align-items-center mb-3">
